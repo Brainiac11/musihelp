@@ -1,12 +1,10 @@
 import 'package:music_notes/music_notes.dart';
 
 final List<ScalePattern> kScalePatterns = [
-  ScalePattern.aeolian,
   ScalePattern.chromatic,
   ScalePattern.dorian,
   ScalePattern.doubleHarmonicMajor,
   ScalePattern.harmonicMinor,
-  ScalePattern.ionian,
   ScalePattern.locrian,
   ScalePattern.lydian,
   ScalePattern.lydianAugmented,

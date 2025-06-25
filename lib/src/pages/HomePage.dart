@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:go_router/go_router.dart';
 import 'package:music_notes/music_notes.dart';
 import 'package:myapp/src/utilities/ScaleTypes.dart';
@@ -17,22 +18,42 @@ class _HomePageState extends State<HomePage> {
   Scale<Note> selectedScale = kScaleGroups[0][0];
   int selectedScalePatternIndex = 0;
   int selectedScaleIndex = 0;
+  ValueKey keySelectionValueKey = ValueKey(0);
 
   Scale<Note> getSelectedScale(){
     return selectedScale;
-  }
+  } 
 
   @override
   Widget build(BuildContext context) {
     final screenHeight = MediaQuery.of(context).size.height;
-    ValueKey keySelectionValueKey = ValueKey(selectedScaleIndex);
+    
 
     return CupertinoPageScaffold(
       navigationBar: CupertinoNavigationBar(middle: Text('Home Page')),
       child: Center(
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.end,
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            // Recording button in the center
+            CupertinoButton(
+              onPressed: () {
+                HapticFeedback.lightImpact();
+                context.go('/recording_page');
+              },
+              color: CupertinoTheme.of(context).primaryColor,
+              child: Text(
+                'Start Recording',
+                style: TextStyle(
+                  color: CupertinoTheme.of(context).primaryContrastingColor,
+                  fontSize: 18,
+                ),
+              ),
+            ),
+            
+            SizedBox(height: screenHeight * 0.3),
+            
+            // Existing buttons at the bottom
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
@@ -84,7 +105,7 @@ class _HomePageState extends State<HomePage> {
                                             color: CupertinoColors.label
                                                 .resolveFrom(context),
                                           ),
-                                        ),
+                                        ).animate().fadeIn(),
                                       ),
                                       Expanded(
                                         child: Row(
@@ -107,6 +128,9 @@ class _HomePageState extends State<HomePage> {
                                                       selectedScaleIndex = 0;
                                                       keySelectionValueKey =
                                                           ValueKey(0);
+                                                    });
+                                                    setModalState(() {
+                                                      
                                                     });
                                                   },
                                               children: [
@@ -135,10 +159,6 @@ class _HomePageState extends State<HomePage> {
                                                             .value,
                                                   ),
                                               onSelectedItemChanged: (int value) {
-                                                // setState(() {
-                                                //   selectedScaleIndex = value;
-                                                //   selectedScale = kScaleGroupsInverse[selectedScalePatternIndex][selectedScaleIndex];
-                                                // });
                                                 setState(() {
                                                   selectedScaleIndex = value;
                                                   selectedScale =
@@ -146,6 +166,7 @@ class _HomePageState extends State<HomePage> {
                                                         kScaleNotes[value],
                                                       );
                                                 });
+                                                setModalState(() => {});
                                                 if (kDebugMode) {
                                                   print(
                                                     "value: $value $selectedScale",
@@ -171,7 +192,7 @@ class _HomePageState extends State<HomePage> {
                                           ),
                                         ],
                                       ),
-                                    ),
+                                    ).animate().fadeIn(),
                                   ],
                                 ),
                                 ),

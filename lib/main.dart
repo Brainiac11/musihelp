@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:myapp/src/pages/HomePage.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:myapp/src/pages/RecordingPage.dart';
 import 'package:myapp/src/pages/SettingsPage.dart';
 import 'package:myapp/src/providers/SettingsProvider.dart';
 import 'package:myapp/src/utilities/ScaleTypes.dart';
@@ -32,11 +33,11 @@ class MyApp extends StatelessWidget {
         path: '/settings',
         builder: (context, state) => const SettingsPage(),
       ),
-      GoRoute(path: '/about', builder: (context, state) => const HomePage()),
-      GoRoute(
-        path: '/scale_selection',
-        builder: (context, state) => const HomePage(),
-      ),
+      GoRoute(path: '/recording_page', builder: (context, state) => const RecordingPage()),
+      // GoRoute(
+      //   path: '/scale_selection',
+      //   builder: (context, state) => const HomePage(),
+      // ),
     ],
   );
 
