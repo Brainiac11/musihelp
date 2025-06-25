@@ -1,12 +1,24 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 import 'package:myapp/src/pages/HomePage.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:myapp/src/pages/SettingsPage.dart';
 import 'package:myapp/src/providers/SettingsProvider.dart';
+import 'package:myapp/src/utilities/ScaleTypes.dart';
 
 void main() {
+  initScalePatternGroups();
+  print("${kScaleGroups[0].length} ${kScaleGroups[0][0]}");
+  WidgetsFlutterBinding.ensureInitialized();
+  // Ensure that the system UI is set to light mode by default
+  SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.light);
+  // Set the preferred orientations to portrait mode only
+  SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+    DeviceOrientation.portraitDown,
+  ]);
   runApp(ProviderScope(child: MyApp()));
 }
 
@@ -31,6 +43,7 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
+
     return Consumer(
       builder: (context, ref, child) {
         final settings = ref.watch(settingsProvider);

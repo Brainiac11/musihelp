@@ -1,31 +1,31 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
-import 'package:myapp/src/utilities/ScaleType.dart';
+import 'package:music_notes/music_notes.dart';
+import 'package:myapp/src/utilities/ScaleTypes.dart';
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
-  String _formatScaleTypeName(ScaleType type) {
-    String total = "";
-    for(int i = 0; i < type.name.length; i++){
-      String char = type.name[i];
-      if(char == char.toUpperCase()){
-        total += " $char";
-      }else{
-        if(i==0){
-          total+= char.toUpperCase();
-        } else{
-        total += char;
-        }
-      }
-    }
-    return total.substring(0);
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  ScalePattern selectedScalePattern = kScalePatterns[0];
+  Scale<Note> selectedScale = kScaleGroups[0][0];
+  int selectedScalePatternIndex = 0;
+  int selectedScaleIndex = 0;
+
+  Scale<Note> getSelectedScale(){
+    return selectedScale;
   }
 
   @override
   Widget build(BuildContext context) {
     final screenHeight = MediaQuery.of(context).size.height;
+    ValueKey keySelectionValueKey = ValueKey(selectedScaleIndex);
 
     return CupertinoPageScaffold(
       navigationBar: CupertinoNavigationBar(middle: Text('Home Page')),
@@ -56,30 +56,128 @@ class HomePage extends StatelessWidget {
                     showCupertinoModalPopup(
                       context: context,
                       builder: (BuildContext context) {
-                        return Container(
-                          height: 250,
-                          color: CupertinoColors.systemBackground.resolveFrom(
-                            context,
-                          ),
-                          child: DefaultTextStyle(
-                            style: TextStyle(
-                              color: CupertinoColors.label.resolveFrom(context),
-                              fontSize: 22.0,
-                            ),
-                            child: GestureDetector(
-                              onTap: () => Navigator.of(context).pop(),
-                              child: CupertinoPicker(
-                                itemExtent: 32.0,
-                                onSelectedItemChanged: (int value) {},
-                                children:
-                                    ScaleType.values.map((scaleType) {
-                                      return Text(
-                                        _formatScaleTypeName(scaleType),
-                                      );
-                                    }).toList(),
+                        return StatefulBuilder(
+                          builder: (BuildContext context, StateSetter setModalState) {
+                            return Container(
+                              height: 300,
+                              color: CupertinoColors.systemBackground
+                                  .resolveFrom(context),
+                              child: DefaultTextStyle(
+                                style: TextStyle(
+                                  color: CupertinoColors.label.resolveFrom(
+                                    context,
+                                  ),
+                                  fontSize: 22.0,
+                                ),
+                                child: GestureDetector(
+                                  onTap: () => Navigator.of(context).pop(),
+                                  child: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    children: [
+                                      Container(
+                                        padding: EdgeInsets.symmetric(vertical: 4.0),
+                                        child: Text(
+                                          "${selectedScale
+                                              .degree(ScaleDegree.i)} ${selectedScalePattern.name ?? ""}",
+                                          style: TextStyle(
+                                            color: CupertinoColors.label
+                                                .resolveFrom(context),
+                                          ),
+                                        ),
+                                      ),
+                                      Expanded(
+                                        child: Row(
+                                          children: [
+                                          Expanded(
+                                            child: CupertinoPicker(
+                                              itemExtent: 32.0,
+                                              scrollController:
+                                                  FixedExtentScrollController(
+                                                    initialItem:
+                                                        selectedScalePatternIndex,
+                                                  ),
+                                              onSelectedItemChanged:
+                                                  (int value) {
+                                                    setState(() {
+                                                      selectedScalePatternIndex =
+                                                          value;
+                                                      selectedScalePattern =
+                                                          kScalePatterns[value];
+                                                      selectedScaleIndex = 0;
+                                                      keySelectionValueKey =
+                                                          ValueKey(0);
+                                                    });
+                                                  },
+                                              children: [
+                                                for (var scale
+                                                    in kScalePatterns)
+                                                  Text(
+                                                    scale.name ??
+                                                        scale.toString(),
+                                                    style: TextStyle(
+                                                      color: CupertinoColors
+                                                          .label
+                                                          .resolveFrom(context),
+                                                    ),
+                                                  ),
+                                              ],
+                                            ),
+                                          ),
+                                          Expanded(
+                                            child: CupertinoPicker(
+                                              key: keySelectionValueKey,
+                                              itemExtent: 32.0,
+                                              scrollController:
+                                                  FixedExtentScrollController(
+                                                    initialItem:
+                                                        keySelectionValueKey
+                                                            .value,
+                                                  ),
+                                              onSelectedItemChanged: (int value) {
+                                                // setState(() {
+                                                //   selectedScaleIndex = value;
+                                                //   selectedScale = kScaleGroupsInverse[selectedScalePatternIndex][selectedScaleIndex];
+                                                // });
+                                                setState(() {
+                                                  selectedScaleIndex = value;
+                                                  selectedScale =
+                                                      selectedScalePattern.on(
+                                                        kScaleNotes[value],
+                                                      );
+                                                });
+                                                if (kDebugMode) {
+                                                  print(
+                                                    "value: $value $selectedScale",
+                                                  );
+                                                }
+                                              },
+                                      
+                                              children: [
+                                                for (var scale
+                                                    in kScaleGroupsInverse[selectedScalePatternIndex])
+                                                  Text(
+                                                    scale
+                                                        .degree(ScaleDegree.i)
+                                                        .toString(),
+                                                    style: TextStyle(
+                                                      color: CupertinoColors
+                                                          .label
+                                                          .resolveFrom(context),
+                                                    ),
+                                                  ),
+                                              ],
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                ),
                               ),
-                            ),
-                          ),
+                            );
+                          },
                         );
                       },
                     );
