@@ -3,11 +3,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 enum ThemeModeSetting { system, light, dark }
 
 class Settings {
-  final ThemeModeSetting themeMode;
-
   Settings({
     this.themeMode = ThemeModeSetting.system,
   });
+
+  final ThemeModeSetting themeMode;
 
   Settings copyWith({
     ThemeModeSetting? themeMode,

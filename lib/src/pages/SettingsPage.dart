@@ -54,9 +54,9 @@ class CupertinoListTile extends StatelessWidget {
     this.onTap,
   });
 
+  final VoidCallback? onTap;
   final Widget title;
   final Widget? trailing;
-  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
