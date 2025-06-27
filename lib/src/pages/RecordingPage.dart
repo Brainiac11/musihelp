@@ -191,12 +191,8 @@ class _RecordingPageState extends State<RecordingPage> {
         // On Linux, try to open with xdg-open
         await Process.run('xdg-open', [pickedVideo!.path]);
       } else if (Platform.isAndroid || Platform.isIOS) {
-        // For mobile platforms, show in-app video player
-        Navigator.of(context).push(
-          CupertinoPageRoute(
-            builder: (context) => VideoPlayerScreen(videoPath: pickedVideo!.path),
-          ),
-        );
+        // For mobile platforms, show in-app video player using GoRouter
+        context.push('/video_player?path=${Uri.encodeComponent(pickedVideo!.path)}');
       } else {
         if (kDebugMode) {
           print('Video playback not supported for this platform');
@@ -263,6 +259,33 @@ class _RecordingPageState extends State<RecordingPage> {
                 ),
               const SizedBox(height: 20),
               _buildVideoPreview(),
+              const SizedBox(height: 20),
+              // Upload button for AI analysis
+              CupertinoButton(
+                color: CupertinoColors.systemGreen,
+                onPressed: () {
+                  HapticFeedback.lightImpact();
+                  context.push('/ai_overview?path=${Uri.encodeComponent(pickedVideo!.path)}');
+                },
+                child: const Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      CupertinoIcons.cloud_upload,
+                      color: CupertinoColors.white,
+                      size: 20,
+                    ),
+                    SizedBox(width: 8),
+                    Text(
+                      'Upload for AI Analysis',
+                      style: TextStyle(
+                        color: CupertinoColors.white,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ],
           ],
         ),
@@ -296,7 +319,13 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
 
   Future<void> _initializeVideoPlayer() async {
     try {
-      _controller = VideoPlayerController.file(File(widget.videoPath));
+      // Check if the video file exists
+      final file = File(widget.videoPath);
+      if (!await file.exists()) {
+        throw Exception('Video file not found');
+      }
+      
+      _controller = VideoPlayerController.file(file);
       await _controller.initialize();
       
       if (mounted) {
@@ -415,15 +444,27 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
                               ),
                             ),
                             const SizedBox(height: 24),
-                            CupertinoButton.filled(
-                              onPressed: () {
-                                setState(() {
-                                  _isLoading = true;
-                                  _hasError = false;
-                                });
-                                _initializeVideoPlayer();
-                              },
-                              child: const Text('Retry'),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                CupertinoButton.filled(
+                                  onPressed: () {
+                                    setState(() {
+                                      _isLoading = true;
+                                      _hasError = false;
+                                    });
+                                    _initializeVideoPlayer();
+                                  },
+                                  child: const Text('Retry'),
+                                ),
+                                const SizedBox(width: 16),
+                                CupertinoButton(
+                                  onPressed: () {
+                                    context.pop();
+                                  },
+                                  child: const Text('Go Back'),
+                                ),
+                              ],
                             ),
                           ],
                         )
@@ -449,7 +490,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
                     padding: const EdgeInsets.all(8),
                     onPressed: () {
                       HapticFeedback.lightImpact();
-                      Navigator.of(context).pop();
+                      context.pop();
                     },
                     child: const Icon(
                       CupertinoIcons.xmark,

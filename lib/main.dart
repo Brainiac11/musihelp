@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:myapp/src/pages/RecordingPage.dart';
 import 'package:myapp/src/pages/SettingsPage.dart';
+import 'package:myapp/src/pages/AIOverviewPage.dart';
 import 'package:myapp/src/providers/SettingsProvider.dart';
 import 'package:myapp/src/utilities/ScaleTypes.dart';
 
@@ -34,6 +35,24 @@ class MyApp extends StatelessWidget {
         builder: (context, state) => const SettingsPage(),
       ),
       GoRoute(path: '/recording_page', builder: (context, state) => const RecordingPage()),
+      GoRoute(
+        path: '/video_player',
+        builder: (context, state) {
+          final videoPath = state.uri.queryParameters['path'];
+          if (videoPath == null) {
+            // If no path provided, go back to recording page
+            return const RecordingPage();
+          }
+          return VideoPlayerScreen(videoPath: videoPath);
+        },
+      ),
+      GoRoute(
+        path: '/ai_overview',
+        builder: (context, state) {
+          final videoPath = state.uri.queryParameters['path'];
+          return AIOverviewPage(videoPath: videoPath);
+        },
+      ),
       // GoRoute(
       //   path: '/scale_selection',
       //   builder: (context, state) => const HomePage(),
