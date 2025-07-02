@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:myapp/src/pages/RecordingPage.dart';
 import 'package:myapp/src/pages/SettingsPage.dart';
 import 'package:myapp/src/pages/AIOverviewPage.dart';
+import 'package:myapp/src/pages/VideoPlayerWrapper.dart';
 import 'package:myapp/src/providers/SettingsProvider.dart';
 import 'package:myapp/src/utilities/ScaleTypes.dart';
 
@@ -24,10 +25,10 @@ void main() {
   runApp(ProviderScope(child: MyApp()));
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends ConsumerWidget {
   MyApp({super.key});
 
-  final _router = GoRouter(
+  static final _router = GoRouter(
     routes: [
       GoRoute(path: '/', builder: (context, state) => const HomePage()),
       GoRoute(
@@ -39,11 +40,7 @@ class MyApp extends StatelessWidget {
         path: '/video_player',
         builder: (context, state) {
           final videoPath = state.uri.queryParameters['path'];
-          if (videoPath == null) {
-            // If no path provided, go back to recording page
-            return const RecordingPage();
-          }
-          return VideoPlayerScreen(videoPath: videoPath);
+          return VideoPlayerWrapper(pathParam: videoPath);
         },
       ),
       GoRoute(
@@ -60,9 +57,8 @@ class MyApp extends StatelessWidget {
     ],
   );
 
-  // This widget is the root of your application.
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
 
     return Consumer(
       builder: (context, ref, child) {

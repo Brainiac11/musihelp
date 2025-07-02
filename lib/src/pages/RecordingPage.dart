@@ -5,18 +5,19 @@ import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:video_player/video_player.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:myapp/src/providers/VideoProvider.dart';
 import 'dart:io' show Platform, Process, File;
 
-class RecordingPage extends StatefulWidget {
+class RecordingPage extends ConsumerStatefulWidget {
   const RecordingPage({super.key});
 
   @override
-  State<RecordingPage> createState() => _RecordingPageState();
+  ConsumerState<RecordingPage> createState() => _RecordingPageState();
 }
 
-class _RecordingPageState extends State<RecordingPage> {
+class _RecordingPageState extends ConsumerState<RecordingPage> {
   final ImagePicker _picker = ImagePicker();
-  XFile? pickedVideo;
 
   Future<void> _pickVideo() async {
     try {
@@ -41,9 +42,9 @@ class _RecordingPageState extends State<RecordingPage> {
         );
       }
       
-      setState(() {
-        pickedVideo = video;
-      });
+      if (video != null) {
+        ref.read(videoPathProvider.notifier).setVideoPath(video.path);
+      }
     } catch (e) {
       if (kDebugMode) {
         print('Error picking video: $e');
@@ -52,7 +53,8 @@ class _RecordingPageState extends State<RecordingPage> {
   }
 
   Widget _buildVideoPreview() {
-    if (pickedVideo == null) return const SizedBox.shrink();
+    final videoPath = ref.watch(videoPathProvider);
+    if (videoPath == null) return const SizedBox.shrink();
     
     return Container(
       width: 300,
@@ -103,7 +105,7 @@ class _RecordingPageState extends State<RecordingPage> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
-                      pickedVideo!.name,
+                      videoPath.split('/').last,
                       style: const TextStyle(
                         color: CupertinoColors.white,
                         fontSize: 12,
@@ -158,7 +160,8 @@ class _RecordingPageState extends State<RecordingPage> {
   }
 
   void _playVideo() async {
-    if (pickedVideo == null) return;
+    final videoPath = ref.read(videoPathProvider);
+    if (videoPath == null) return;
     
     // Add haptic feedback
     HapticFeedback.lightImpact();
@@ -170,7 +173,7 @@ class _RecordingPageState extends State<RecordingPage> {
           // First try: Use Start-Process with PowerShell
           final result = await Process.run(
             'powershell',
-            ['-Command', 'Start-Process', '"${pickedVideo!.path}"'],
+            ['-Command', 'Start-Process', '"$videoPath"'],
             runInShell: true,
           );
           if (result.exitCode != 0) {
@@ -180,19 +183,19 @@ class _RecordingPageState extends State<RecordingPage> {
           // Fallback: Use cmd with start command
           await Process.run(
             'cmd',
-            ['/c', 'start', '""', '"${pickedVideo!.path}"'],
+            ['/c', 'start', '""', '"$videoPath"'],
             runInShell: true,
           );
         }
       } else if (Platform.isMacOS) {
         // On macOS, open with the default video player
-        await Process.run('open', [pickedVideo!.path]);
+        await Process.run('open', [videoPath]);
       } else if (Platform.isLinux) {
         // On Linux, try to open with xdg-open
-        await Process.run('xdg-open', [pickedVideo!.path]);
+        await Process.run('xdg-open', [videoPath]);
       } else if (Platform.isAndroid || Platform.isIOS) {
         // For mobile platforms, show in-app video player using GoRouter
-        context.push('/video_player?path=${Uri.encodeComponent(pickedVideo!.path)}');
+        context.push('/video_player?path=${Uri.encodeComponent(videoPath)}');
       } else {
         if (kDebugMode) {
           print('Video playback not supported for this platform');
@@ -207,6 +210,8 @@ class _RecordingPageState extends State<RecordingPage> {
 
   @override
   Widget build(BuildContext context) {
+    final videoPath = ref.watch(videoPathProvider);
+    
     return CupertinoPageScaffold(
       navigationBar: CupertinoNavigationBar(
         leading: CupertinoButton(
@@ -241,12 +246,12 @@ class _RecordingPageState extends State<RecordingPage> {
                 ),
               ),
             ),
-            if (pickedVideo != null) ...[
+            if (videoPath != null) ...[
               const SizedBox(height: 20),
               Text(
                 Platform.isWindows 
-                    ? 'Video selected: ${pickedVideo!.name}'
-                    : 'Video recorded: ${pickedVideo!.name}',
+                    ? 'Video selected: ${videoPath.split('/').last}'
+                    : 'Video recorded: ${videoPath.split('/').last}',
                 style: const TextStyle(fontSize: 14),
               ),
               if (Platform.isAndroid || Platform.isIOS)
@@ -265,7 +270,7 @@ class _RecordingPageState extends State<RecordingPage> {
                 color: CupertinoColors.systemGreen,
                 onPressed: () {
                   HapticFeedback.lightImpact();
-                  context.push('/ai_overview?path=${Uri.encodeComponent(pickedVideo!.path)}');
+                  context.push('/ai_overview?path=${Uri.encodeComponent(videoPath)}');
                 },
                 child: const Row(
                   mainAxisSize: MainAxisSize.min,

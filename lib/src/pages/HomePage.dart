@@ -97,7 +97,9 @@ class _HomePageState extends State<HomePage> {
                                     mainAxisAlignment: MainAxisAlignment.start,
                                     children: [
                                       Container(
-                                        padding: EdgeInsets.symmetric(vertical: 4.0),
+                                        height: 60,
+                                        padding: EdgeInsets.symmetric(horizontal: 16.0),
+                                        alignment: Alignment.center,
                                         child: Text(
                                           "${selectedScale
                                               .degree(ScaleDegree.i)} ${selectedScalePattern.name ?? ""}",
@@ -105,6 +107,9 @@ class _HomePageState extends State<HomePage> {
                                             color: CupertinoColors.label
                                                 .resolveFrom(context),
                                           ),
+                                          textAlign: TextAlign.center,
+                                          maxLines: 2,
+                                          overflow: TextOverflow.ellipsis,
                                         ).animate().fadeIn(),
                                       ),
                                       Expanded(

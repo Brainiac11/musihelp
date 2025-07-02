@@ -2,17 +2,19 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:go_router/go_router.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:myapp/src/providers/VideoProvider.dart';
 
-class AIOverviewPage extends StatefulWidget {
+class AIOverviewPage extends ConsumerStatefulWidget {
   final String? videoPath;
 
   const AIOverviewPage({super.key, this.videoPath});
 
   @override
-  State<AIOverviewPage> createState() => _AIOverviewPageState();
+  ConsumerState<AIOverviewPage> createState() => _AIOverviewPageState();
 }
 
-class _AIOverviewPageState extends State<AIOverviewPage> {
+class _AIOverviewPageState extends ConsumerState<AIOverviewPage> {
   bool _isAnalyzing = false;
   bool _analysisComplete = false;
   String _analysisResult = '';
@@ -20,8 +22,13 @@ class _AIOverviewPageState extends State<AIOverviewPage> {
   @override
   void initState() {
     super.initState();
+    // Start analysis if we have a video path from route parameter
     if (widget.videoPath != null) {
       _startAnalysis();
+      // Update provider after the widget tree is built
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        ref.read(videoPathProvider.notifier).setVideoPath(widget.videoPath!);
+      });
     }
   }
 
@@ -45,6 +52,8 @@ class _AIOverviewPageState extends State<AIOverviewPage> {
 
   @override
   Widget build(BuildContext context) {
+    final videoPath = ref.watch(videoPathProvider) ?? widget.videoPath;
+    
     return CupertinoPageScaffold(
       navigationBar: CupertinoNavigationBar(
         leading: CupertinoButton(
@@ -95,7 +104,7 @@ class _AIOverviewPageState extends State<AIOverviewPage> {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      widget.videoPath != null 
+                      videoPath != null 
                           ? 'Analyzing your musical performance...'
                           : 'No video available for analysis',
                       style: const TextStyle(
@@ -122,7 +131,7 @@ class _AIOverviewPageState extends State<AIOverviewPage> {
                       width: 1,
                     ),
                   ),
-                  child: widget.videoPath == null
+                  child: videoPath == null
                       ? Center(
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
@@ -231,7 +240,7 @@ class _AIOverviewPageState extends State<AIOverviewPage> {
                                               color: CupertinoTheme.of(context).barBackgroundColor,
                                               onPressed: () {
                                                 HapticFeedback.lightImpact();
-                                                context.push('/video_player?path=${Uri.encodeComponent(widget.videoPath!)}');
+                                                context.push('/video_player?path=${Uri.encodeComponent(videoPath)}');
                                               },
                                               child: const Text('View Video'),
                                             ),
@@ -291,7 +300,7 @@ class _AIOverviewPageState extends State<AIOverviewPage> {
               const SizedBox(height: 20),
               
               // Bottom navigation button
-              if (widget.videoPath == null)
+              if (videoPath == null)
                 CupertinoButton(
                   color: CupertinoTheme.of(context).primaryColor,
                   onPressed: () {
