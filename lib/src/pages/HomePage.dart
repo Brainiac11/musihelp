@@ -35,7 +35,6 @@ class _HomePageState extends State<HomePage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // Recording button in the center
             CupertinoButton(
               onPressed: () {
                 HapticFeedback.lightImpact();
@@ -53,7 +52,6 @@ class _HomePageState extends State<HomePage> {
             
             SizedBox(height: screenHeight * 0.3),
             
-            // Existing buttons at the bottom
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [

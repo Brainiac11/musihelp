@@ -22,10 +22,8 @@ class _AIOverviewPageState extends ConsumerState<AIOverviewPage> {
   @override
   void initState() {
     super.initState();
-    // Start analysis if we have a video path from route parameter
     if (widget.videoPath != null) {
       _startAnalysis();
-      // Update provider after the widget tree is built
       WidgetsBinding.instance.addPostFrameCallback((_) {
         ref.read(videoPathProvider.notifier).setVideoPath(widget.videoPath!);
       });
@@ -38,7 +36,6 @@ class _AIOverviewPageState extends ConsumerState<AIOverviewPage> {
       _analysisComplete = false;
     });
 
-    // Simulate AI analysis process
     await Future.delayed(const Duration(seconds: 3));
 
     if (mounted) {
@@ -75,7 +72,6 @@ class _AIOverviewPageState extends ConsumerState<AIOverviewPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // Header section
               Container(
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
@@ -119,7 +115,6 @@ class _AIOverviewPageState extends ConsumerState<AIOverviewPage> {
               
               const SizedBox(height: 30),
               
-              // Analysis status section
               Expanded(
                 child: Container(
                   padding: const EdgeInsets.all(20),
@@ -231,7 +226,6 @@ class _AIOverviewPageState extends ConsumerState<AIOverviewPage> {
                                       ),
                                       const SizedBox(height: 20),
                                       
-                                      // Action buttons
                                       Row(
                                         spacing: 12.0,
                                         children: [
@@ -299,7 +293,6 @@ class _AIOverviewPageState extends ConsumerState<AIOverviewPage> {
               
               const SizedBox(height: 20),
               
-              // Bottom navigation button
               if (videoPath == null)
                 CupertinoButton(
                   color: CupertinoTheme.of(context).primaryColor,

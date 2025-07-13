@@ -13,7 +13,6 @@ class VideoPlayerWrapper extends ConsumerWidget {
     final videoPath = pathParam ?? ref.watch(videoPathProvider);
     
     if (videoPath == null) {
-      // If no path available, go back to recording page
       return const RecordingPage();
     }
     

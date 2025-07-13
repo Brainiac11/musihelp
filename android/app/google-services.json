@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "138562725000",
+    "project_id": "musihelp-3f0c9",
+    "storage_bucket": "musihelp-3f0c9.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:138562725000:android:fdfe14b08e1fd1a71bab3d",
+        "android_client_info": {
+          "package_name": "com.example.myapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAViHHq0abzfYTx-t5_brn3BPO6KvyY-jM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

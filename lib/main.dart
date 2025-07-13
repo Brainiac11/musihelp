@@ -15,9 +15,7 @@ void main() {
   initScalePatternGroups();
   print("${kScaleGroups[0].length} ${kScaleGroups[0][0]}");
   WidgetsFlutterBinding.ensureInitialized();
-  // Ensure that the system UI is set to light mode by default
   SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.light);
-  // Set the preferred orientations to portrait mode only
   SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
@@ -26,7 +24,7 @@ void main() {
 }
 
 class MyApp extends ConsumerWidget {
-  MyApp({super.key});
+  const MyApp({super.key});
 
   static final _router = GoRouter(
     routes: [
@@ -50,10 +48,6 @@ class MyApp extends ConsumerWidget {
           return AIOverviewPage(videoPath: videoPath);
         },
       ),
-      // GoRoute(
-      //   path: '/scale_selection',
-      //   builder: (context, state) => const HomePage(),
-      // ),
     ],
   );
 

@@ -24,8 +24,6 @@ class _RecordingPageState extends ConsumerState<RecordingPage> {
       XFile? video;
       
       if (Platform.isWindows) {
-        // On Windows, use file picker to select video files instead of camera
-        // since camera delegate setup is complex
         FilePickerResult? result = await FilePicker.platform.pickFiles(
           type: FileType.video,
           allowMultiple: false,
@@ -35,10 +33,9 @@ class _RecordingPageState extends ConsumerState<RecordingPage> {
           video = XFile(result.files.single.path!);
         }
       } else {
-        // On other platforms, use camera (temporary recording, not saved to gallery)
         video = await _picker.pickVideo(
           source: ImageSource.camera,
-          maxDuration: const Duration(minutes: 5), // Optional: limit duration
+          maxDuration: const Duration(minutes: 5),
         );
       }
       
@@ -72,7 +69,6 @@ class _RecordingPageState extends ConsumerState<RecordingPage> {
         child: Stack(
           alignment: Alignment.center,
           children: [
-            // Background placeholder
             Container(
               width: double.infinity,
               height: double.infinity,
@@ -83,7 +79,6 @@ class _RecordingPageState extends ConsumerState<RecordingPage> {
                 color: CupertinoColors.white,
               ),
             ),
-            // Video info overlay
             Positioned(
               bottom: 0,
               left: 0,
@@ -128,7 +123,6 @@ class _RecordingPageState extends ConsumerState<RecordingPage> {
                 ),
               ),
             ),
-            // Play button overlay
             CupertinoButton(
               padding: EdgeInsets.zero,
               onPressed: _playVideo,
@@ -163,14 +157,11 @@ class _RecordingPageState extends ConsumerState<RecordingPage> {
     final videoPath = ref.read(videoPathProvider);
     if (videoPath == null) return;
     
-    // Add haptic feedback
     HapticFeedback.lightImpact();
     
     try {
       if (Platform.isWindows) {
-        // On Windows, try multiple approaches
         try {
-          // First try: Use Start-Process with PowerShell
           final result = await Process.run(
             'powershell',
             ['-Command', 'Start-Process', '"$videoPath"'],
@@ -180,7 +171,6 @@ class _RecordingPageState extends ConsumerState<RecordingPage> {
             throw Exception('PowerShell failed');
           }
         } catch (e) {
-          // Fallback: Use cmd with start command
           await Process.run(
             'cmd',
             ['/c', 'start', '""', '"$videoPath"'],
@@ -188,13 +178,10 @@ class _RecordingPageState extends ConsumerState<RecordingPage> {
           );
         }
       } else if (Platform.isMacOS) {
-        // On macOS, open with the default video player
         await Process.run('open', [videoPath]);
       } else if (Platform.isLinux) {
-        // On Linux, try to open with xdg-open
         await Process.run('xdg-open', [videoPath]);
       } else if (Platform.isAndroid || Platform.isIOS) {
-        // For mobile platforms, show in-app video player using GoRouter
         context.push('/video_player?path=${Uri.encodeComponent(videoPath)}');
       } else {
         if (kDebugMode) {
@@ -265,7 +252,6 @@ class _RecordingPageState extends ConsumerState<RecordingPage> {
               const SizedBox(height: 20),
               _buildVideoPreview(),
               const SizedBox(height: 20),
-              // Upload button for AI analysis
               CupertinoButton(
                 color: CupertinoColors.systemGreen,
                 onPressed: () {
@@ -324,7 +310,6 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
 
   Future<void> _initializeVideoPlayer() async {
     try {
-      // Check if the video file exists
       final file = File(widget.videoPath);
       if (!await file.exists()) {
         throw Exception('Video file not found');
@@ -338,10 +323,8 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
           _isLoading = false;
         });
         
-        // Auto-play the video
         _controller.play();
         
-        // Hide controls after 3 seconds
         _hideControlsAfterDelay();
       }
     } catch (e) {
@@ -398,7 +381,6 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
       child: SafeArea(
         child: Stack(
           children: [
-            // Video player
             Center(
               child: _isLoading
                   ? const Column(
@@ -479,10 +461,8 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
                             aspectRatio: _controller.value.aspectRatio,
                             child: VideoPlayer(_controller),
                           ),
-                        ),
-            ),
+                        ),                        ),
             
-            // Top controls (close button)
             if (_showControls)
               Positioned(
                 top: 20,
@@ -506,7 +486,6 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
                 ),
               ),
             
-            // Center play/pause button
             if (_showControls && !_isLoading && !_hasError)
               Center(
                 child: Container(
@@ -537,7 +516,6 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
                 ),
               ),
             
-            // Bottom controls
             if (_showControls && !_isLoading && !_hasError)
               Positioned(
                 bottom: 40,
@@ -552,7 +530,6 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      // Progress bar
                       VideoProgressIndicator(
                         _controller,
                         allowScrubbing: true,
@@ -563,7 +540,6 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
                         ),
                       ),
                       const SizedBox(height: 8),
-                      // Time display
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
